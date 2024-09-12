@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/secondary"
+    tools:context=".Register">
+
+    <!-- ImageButton no topo esquerdo -->
+    <ImageButton
+        android:id="@+id/back_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/arrow_back_24"
+        android:tint="@color/primary"
+        android:background="@null"
+        android:layout_gravity="start|top"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="40dp"
+        />
+
+    <!-- Conteúdo principal centralizado -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="To Do List"
+            android:textColor="@color/primary"
+            android:textSize="42dp"
+            android:textStyle="bold"
+            android:layout_marginBottom="30dp"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="30dp"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:padding="24dp">
+
+            <EditText
+                android:id="@+id/register_user"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/custom_edittext"
+                android:ems="10"
+                android:hint="usuário"
+                android:inputType="text"
+                android:padding="8dp"
+                android:textColorHint="@color/text"
+                android:textColor="@color/black"
+                />
+
+            <EditText
+                android:id="@+id/register_email"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/custom_edittext"
+                android:ems="10"
+                android:hint="email"
+                android:inputType="text"
+                android:padding="8dp"
+                android:textColorHint="@color/text"
+                android:layout_marginTop="30dp"
+                android:textColor="@color/black"
+                />
+
+            <EditText
+                android:id="@+id/register_pass"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/custom_edittext"
+                android:ems="10"
+                android:layout_marginTop="30dp"
+                android:hint="senha"
+                android:inputType="textPassword"
+                android:padding="8dp"
+                android:textColorHint="@color/text"
+                android:textColor="@color/black"
+                />
+
+            <EditText
+                android:id="@+id/register_pass_again"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/custom_edittext"
+                android:ems="10"
+                android:layout_marginTop="40dp"
+                android:hint="repetir senha"
+                android:inputType="textPassword"
+                android:padding="8dp"
+                android:textColorHint="@color/text"
+                android:textColor="@color/black"
+                />
+
+            <Button
+                android:id="@+id/btn_register"
+                android:textSize="18dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Salvar"
+                android:clickable="true"
+                android:layout_marginTop="30dp"
+                android:backgroundTint="@color/primary"
+                android:textColor="@color/secondary"
+                app:cornerRadius="20dp"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

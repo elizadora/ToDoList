@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardElevation="5dp"
+    app:cardBackgroundColor="@color/secondary"
+    app:cardCornerRadius="8dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="16dp"
+    >
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/text"
+            android:id="@+id/check_task"
+            android:textColor="@color/primary"
+            android:button="@drawable/custom_checkbox"
+            />
+
+        <TextView
+            android:id="@+id/task_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Text from task"
+            android:textSize="18dp"
+            android:visibility="gone"
+            android:textColor="@color/text"
+            android:paddingStart="2dp" />
+
+        <TextView
+            android:id="@+id/task_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Text from task"
+            android:textSize="18dp"
+            android:textColor="@color/text"
+            android:paddingStart="2dp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/date_task"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Text from task"
+            android:textSize="18dp"
+            android:textColor="@color/text"
+             />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
