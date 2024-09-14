@@ -1,7 +1,6 @@
 package com.example.todolistapp.models;
 
 public class TaskModel {
-    String id;
     String title;
     String description;
     String date;
@@ -18,14 +17,6 @@ public class TaskModel {
         this.date = date;
         this.category = category;
         this.status = status;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public int getStatus() {

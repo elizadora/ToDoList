@@ -169,7 +169,7 @@ public class AddTask extends AppCompatActivity {
 
 
     private void addTask(String title, String descripition, String category, String date){
-        TaskModel task1  = new TaskModel(title, descripition, category, date, 0);
+        TaskModel task1  = new TaskModel(title, descripition,date, category, 0);
 
         firestoreDB.collection("Users").document(userIDAuth).
                 collection("Tasks").add(task1).

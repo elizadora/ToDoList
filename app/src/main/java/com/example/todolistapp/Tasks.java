@@ -35,6 +35,7 @@ public class Tasks extends Fragment {
 
 
     ArrayList<TaskModel> taskList = new ArrayList<TaskModel>();
+    ArrayList<String> tasksId = new ArrayList<String>();
     TaskArrayAdapter taskArrayAdapter;
 
     String userIDAuth;
@@ -56,7 +57,7 @@ public class Tasks extends Fragment {
 
         // implement recyclerview
         rvTaks = view.findViewById(R.id.rv_tasks);
-        taskArrayAdapter = new TaskArrayAdapter(R.layout.task_layout, taskList);
+        taskArrayAdapter = new TaskArrayAdapter(R.layout.task_layout, taskList, tasksId);
 
         rvTaks = (RecyclerView) view.findViewById(R.id.rv_tasks);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -73,8 +74,8 @@ public class Tasks extends Fragment {
                         if(task.isSuccessful()){
                            for(DocumentSnapshot d : task.getResult()){
                                 TaskModel t = d.toObject(TaskModel.class);
-                                t.setId(d.getId());
 
+                                tasksId.add(d.getId());
                                 taskList.add(t);
 
                            }
