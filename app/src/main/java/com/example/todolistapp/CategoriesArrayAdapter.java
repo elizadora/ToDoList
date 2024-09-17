@@ -2,6 +2,7 @@ package com.example.todolistapp;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -189,7 +190,7 @@ public class CategoriesArrayAdapter extends RecyclerView.Adapter<CategoriesArray
                 EditText editCategoryName = dialogView.findViewById(R.id.edit_category_name);
                 editCategoryName.setText(itemName.getText().toString());
 
-                new AlertDialog.Builder(itemView.getContext())
+                AlertDialog dialog = new AlertDialog.Builder(itemView.getContext())
                         .setTitle("Editar Categoria")
                         .setView(dialogView)
                         .setPositiveButton("Salvar", new DialogInterface.OnClickListener() {
@@ -205,8 +206,20 @@ public class CategoriesArrayAdapter extends RecyclerView.Adapter<CategoriesArray
                                 dialog.dismiss();
                             }
                         })
-                        .create()
-                        .show();
+                        .create();
+
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialogInterface) {
+                        // Alterar a cor do botão "Salvar" (positivo)
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(itemView.getContext().getResources().getColor(R.color.primary));
+
+                        // Alterar a cor do botão "Cancelar" (negativo)
+                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(itemView.getContext().getResources().getColor(R.color.secondary));
+                    }
+                });
+
+                dialog.show();
 
                 return true;
             } else if (item.getItemId() == R.id.delete_category) {

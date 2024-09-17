@@ -123,7 +123,20 @@ public class TaskInfo extends AppCompatActivity {
                 });
 
                 confirmDelete.setNegativeButton("Não", null);
-                confirmDelete.create().show();
+                confirmDelete.create();
+
+                AlertDialog dialog = confirmDelete.create();
+
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialogInterface) {
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.primary));
+                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.secondary));
+                    }
+                });
+                dialog.show();
+
+
             }
         });
 
