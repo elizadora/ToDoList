@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,10 +48,12 @@ public class TaskInfo extends AppCompatActivity {
     Button btnSaveEditTask;
     Button btnSelectDate;
     Button btnDeleteTask;
+    Button btnReady;
+    ImageButton btnBackMain2;
 
     String id;
 
-
+    List<String> categoryIds = new ArrayList<>();
     List<String> categoryList = new ArrayList<>();
     private ArrayAdapter<String> adapter;
 
@@ -77,6 +80,8 @@ public class TaskInfo extends AppCompatActivity {
         btnSelectDate = findViewById(R.id.btn_select_date);
         btnSaveEditTask = findViewById(R.id.btn_save_edit);
         btnDeleteTask = findViewById(R.id.btn_delete_task);
+        btnReady = findViewById(R.id.btn_ready);
+        btnBackMain2 = findViewById(R.id.btn_back_main_2);
 
 
         adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, categoryList);
@@ -92,6 +97,7 @@ public class TaskInfo extends AppCompatActivity {
                             for(QueryDocumentSnapshot document : task.getResult()){
                                 CategoryModel category = document.toObject(CategoryModel.class);
                                 categoryList.add(category.getName());
+                                categoryIds.add(document.getId());
                             }
 
                             adapter.notifyDataSetChanged();
@@ -99,40 +105,14 @@ public class TaskInfo extends AppCompatActivity {
                     }
                 });
 
-        // get from firestore
-        firestoreDB.collection("Users").document(userIDAuth).
-                collection("Tasks").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
-                            TaskModel t = (task.getResult()).toObject(TaskModel.class);
-
-                            titleView.setText(t.getTitle());
-                            descriptionView.setText(t.getDescription());
-                            String categoryFromF = t.getCategory();
-                            int spinnerPosition = adapter.getPosition(categoryFromF);
-
-
-                            categoryView.setSelection(spinnerPosition);
-                            adapter.notifyDataSetChanged();
-
-                            dateView.setText(t.getDate());
-                            if(t.getStatus() == 0){
-
-                                statusView.setText("Pendente");
-                            }else{
-                                statusView.setText("Concluido");
-                            }
-                        }
-                    }
-                });
+        loadData();
 
 
         btnDeleteTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder confirmDelete = new AlertDialog.Builder(TaskInfo.this);
-                confirmDelete.setTitle("Atençãoa!");
+                confirmDelete.setTitle("Atenção!");
                 confirmDelete.setMessage("Tem certeza que deseja excluir essa tarefa?");
                 confirmDelete.setCancelable(false);
                 confirmDelete.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
@@ -153,7 +133,6 @@ public class TaskInfo extends AppCompatActivity {
             public void onClick(View v) {
                 String title = titleView.getText().toString().trim();
                 String description = descriptionView.getText().toString().trim();
-                String category = categoryView.getSelectedItem().toString().trim();
                 String date = dateView.getText().toString().trim();
                 int status = 1;
 
@@ -164,11 +143,44 @@ public class TaskInfo extends AppCompatActivity {
                 if(title.isEmpty() || description.isEmpty()){
                     Toast.makeText(TaskInfo.this, "Campos vazios!!", Toast.LENGTH_SHORT).show();
                 }else{
-                    editTask(title, description, category, date, status);
+                    editTask(title, description, categoryIds.get(categoryView.getSelectedItemPosition()), date, status);
                 }
 
             }
         });
+
+
+        btnBackMain2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent call = new Intent(TaskInfo.this, Principal.class);
+                startActivity(call);
+            }
+        });
+
+
+        btnReady.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int status = 0;
+
+                if (statusView.getText().toString().equals("Pendente")) {
+                    status = 1;
+
+                } else {
+                    status = 0;
+                }
+
+                firestoreDB.collection("Users")
+                        .document(userIDAuth)
+                        .collection("Tasks")
+                        .document(id)
+                        .update("status", status);
+
+                loadData();
+            }
+        });
+
 
         btnSelectDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,6 +189,39 @@ public class TaskInfo extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void loadData(){
+        // get from firestore
+        firestoreDB.collection("Users").document(userIDAuth).
+                collection("Tasks").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            TaskModel t = (task.getResult()).toObject(TaskModel.class);
+
+                            titleView.setText(t.getTitle());
+                            descriptionView.setText(t.getDescription());
+
+                            String categoryFromF = t.getCategory();
+                            int spinnerPosition = categoryIds.indexOf(categoryFromF);
+
+
+                            categoryView.setSelection(spinnerPosition);
+                            adapter.notifyDataSetChanged();
+
+                            dateView.setText(t.getDate());
+                            if(t.getStatus() == 0){
+                                statusView.setText("Pendente");
+                                btnReady.setText("Marcar como concluido");
+
+                            }else{
+                                statusView.setText("Concluido");
+                                btnReady.setText("Marcar como pendente");
+                            }
+                        }
+                    }
+                });
     }
 
     private void editTask(String title, String description, String category, String date, int status){
@@ -211,8 +256,6 @@ public class TaskInfo extends AppCompatActivity {
             }
         });
     }
-
-
 
 
 

@@ -54,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Text from task"
-            android:textSize="18dp"
+            android:textSize="14dp"
             android:textColor="@color/text"
              />
     </LinearLayout>

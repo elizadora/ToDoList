@@ -31,6 +31,7 @@ public class Categories extends Fragment {
 
     RecyclerView rvCategories;
     ArrayList<CategoryModel> categoriesList = new ArrayList<CategoryModel>();
+    ArrayList<String> categoriesId = new ArrayList<String>();
     CategoriesArrayAdapter categoriesArrayAdapter;
 
     String userIDAuth;
@@ -53,7 +54,7 @@ public class Categories extends Fragment {
 
         // implement recyclerview
         rvCategories = view.findViewById(R.id.rv_categories);
-        categoriesArrayAdapter = new CategoriesArrayAdapter(R.layout.category_layout, categoriesList);
+        categoriesArrayAdapter = new CategoriesArrayAdapter(R.layout.category_layout, categoriesList, categoriesId);
 
         rvCategories = (RecyclerView) view.findViewById(R.id.rv_categories);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -70,6 +71,7 @@ public class Categories extends Fragment {
                             for(DocumentSnapshot d : task.getResult()){
                                 CategoryModel t = d.toObject(CategoryModel.class);
 
+                                categoriesId.add(d.getId());
                                 categoriesList.add(t);
                             }
                         }

@@ -30,9 +30,7 @@ public class Tasks extends Fragment {
     private FirebaseFirestore firestoreDB;
 
     FloatingActionButton btnAddTask;
-
     RecyclerView rvTaks;
-
 
     ArrayList<TaskModel> taskList = new ArrayList<TaskModel>();
     ArrayList<String> tasksId = new ArrayList<String>();

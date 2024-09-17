@@ -9,7 +9,7 @@
     tools:context=".TaskInfo">
 
     <ImageButton
-        android:id="@+id/btn_back_main"
+        android:id="@+id/btn_back_main_2"
         android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:background="@null"
@@ -209,6 +209,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="Deletar"
+                android:layout_marginLeft="10dp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/text"
                 android:textColor="@color/secondary"

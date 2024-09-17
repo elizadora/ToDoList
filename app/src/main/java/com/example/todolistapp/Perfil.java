@@ -1,9 +1,11 @@
 package com.example.todolistapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,6 +28,8 @@ public class Perfil extends Fragment {
     TextView profileTasksNumber0;
     TextView profileTasksNumber1;
 
+    Button btnLogout;
+
     public Perfil() {
     }
 
@@ -45,6 +49,9 @@ public class Perfil extends Fragment {
         profileTasksNumber = view.findViewById(R.id.profile_tasks_number);
         profileTasksNumber0 = view.findViewById(R.id.profile_tasks_number_0);
         profileTasksNumber1 = view.findViewById(R.id.profile_tasks_number_1);
+
+
+        btnLogout = view.findViewById(R.id.btn_logout);
 
         // Carregar os dados do usuário do Firestore
         firestoreDB.collection("Users").document(userIDAuth).get()
@@ -87,6 +94,17 @@ public class Perfil extends Fragment {
                         profileTasksNumber1.setText(String.valueOf(taskQTD1));
                     }
                 });
+
+
+
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                Intent call = new Intent(view.getContext(), MainActivity.class);
+                startActivity(call);
+            }
+        });
 
         return view;
     }

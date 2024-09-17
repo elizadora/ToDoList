@@ -45,6 +45,7 @@ public class AddTask extends AppCompatActivity {
     // id user
     String userIDAuth;
 
+    List<String> categoryIds = new ArrayList<>();
     List<String> categoryList = new ArrayList<>();
 
     // inputs
@@ -95,6 +96,7 @@ public class AddTask extends AppCompatActivity {
                                     for(QueryDocumentSnapshot document : task.getResult()){
                                         CategoryModel category = document.toObject(CategoryModel.class);
                                         categoryList.add(category.getName());
+                                        categoryIds.add(document.getId());
 
                                     }
 
@@ -134,7 +136,7 @@ public class AddTask extends AppCompatActivity {
                     if(category.equals("Selecione uma categoria")){
                         category =  "";
                     }
-                    addTask(title, description, category, date);
+                    addTask(title, description, categoryIds.get(categoryTask.getSelectedItemPosition()), date);
                 }
 
             }

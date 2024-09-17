@@ -24,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity {
     // button and link
     TextView btnRegisterTl;
+    TextView forgotPassword;
     Button btnLogin;
 
     //input
@@ -41,10 +42,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         btnRegisterTl = findViewById(R.id.btn_registertl);
+        forgotPassword = findViewById(R.id.forgot_password);
         btnLogin = findViewById(R.id.btn_login);
 
         loginEmail = findViewById(R.id.login_email);
         loginPass = findViewById(R.id.login_pass);
+
 
         loginEmail.setText("elizadoradasilva2003@gmail.com");
         loginPass.setText("123456");
@@ -74,6 +77,15 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     loginUser(email, pass);
                 }
+            }
+        });
+
+
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent call = new Intent(MainActivity.this, ResetPassword.class);
+                startActivity(call);
             }
         });
 
