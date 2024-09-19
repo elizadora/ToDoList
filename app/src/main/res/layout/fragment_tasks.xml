@@ -12,6 +12,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="40dp"
+        android:layout_marginBottom="20dp"
+        />
+
+    <TextView
+        android:id="@+id/tv_task"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Nenhuma tarefa cadastrada"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:textColor="@color/text"
+        android:visibility="gone"
         />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

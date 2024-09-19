@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -26,51 +26,58 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
-public class Tasks extends Fragment {
+public class TasksCategories extends Fragment {
     private FirebaseFirestore firestoreDB;
-
-    FloatingActionButton btnAddTask;
-    RecyclerView rvTaks;
-    TextView tvTask;
-
-    ArrayList<TaskModel> taskList = new ArrayList<TaskModel>();
-    ArrayList<String> tasksId = new ArrayList<String>();
-    TaskArrayAdapter taskArrayAdapter;
-
     String userIDAuth;
 
-    public Tasks(){
+    FloatingActionButton btnAddTask2;
+    TextView tvTaskCategory;
+
+    RecyclerView rvTasksCategories;
+    TasksCategoriesArrayAdapter tasksCategoriesArrayAdapter;
+    ArrayList<TaskModel> taskList = new ArrayList<TaskModel>();
+    ArrayList<String> tasksId = new ArrayList<String>();
+
+    String categoryId;
+
+    public TasksCategories(){
 
     }
 
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        View view =  inflater.inflate(R.layout.fragment_tasks, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_tasks_categories, container, false);
 
-        // get userId
+        Bundle bundle = getArguments();
+
+        if(bundle != null){
+            categoryId = bundle.getString("id");
+        }
+
         userIDAuth = FirebaseAuth.getInstance().getCurrentUser().getUid();
         firestoreDB = FirebaseFirestore.getInstance();
 
-        tvTask = view.findViewById(R.id.tv_task);
-        btnAddTask = view.findViewById(R.id.btn_add_task);
-        btnAddTask.setColorFilter(ContextCompat.getColor(view.getContext(), R.color.secondary));
 
-        // implement recyclerview
-        rvTaks = view.findViewById(R.id.rv_tasks);
-        taskArrayAdapter = new TaskArrayAdapter(R.layout.task_layout, taskList, tasksId);
+        tvTaskCategory = view.findViewById(R.id.tv_task_category);
+        btnAddTask2 = view.findViewById(R.id.btn_add_task_2);
+        btnAddTask2.setColorFilter(ContextCompat.getColor(view.getContext(), R.color.secondary));
 
-        rvTaks = (RecyclerView) view.findViewById(R.id.rv_tasks);
+
+        rvTasksCategories = view.findViewById(R.id.rv_tasks_categories);
+        tasksCategoriesArrayAdapter = new TasksCategoriesArrayAdapter(R.layout.task_layout, taskList, tasksId);
+
+
+        rvTasksCategories = (RecyclerView) view.findViewById(R.id.rv_tasks_categories);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        rvTaks.setLayoutManager(layoutManager);
+        rvTasksCategories.setLayoutManager(layoutManager);
 
-        rvTaks.setAdapter(taskArrayAdapter);
+        rvTasksCategories.setAdapter(tasksCategoriesArrayAdapter);
 
         loadTasks();
 
-        
-        btnAddTask.setOnClickListener(new View.OnClickListener() {
+
+        btnAddTask2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), AddTask.class);
@@ -78,14 +85,13 @@ public class Tasks extends Fragment {
             }
         });
 
-
         return view;
     }
 
     private void loadTasks(){
         // get from firestore
         firestoreDB.collection("Users").document(userIDAuth).
-                collection("Tasks").addSnapshotListener(new EventListener<QuerySnapshot>() {
+                collection("Tasks").whereEqualTo("category", categoryId).addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if(error != null){
@@ -103,13 +109,13 @@ public class Tasks extends Fragment {
                                 tasksId.add(d.getId());
                             }
 
-                            if(taskList.isEmpty()){
-                                tvTask.setVisibility(View.VISIBLE);
-                                rvTaks.setVisibility(View.GONE);
-                            }else{
-                                tvTask.setVisibility(View.GONE);
-                                rvTaks.setVisibility(View.VISIBLE);
-                                taskArrayAdapter.notifyDataSetChanged();
+                            if (taskList.isEmpty()) {
+                                tvTaskCategory.setVisibility(View.VISIBLE);
+                                rvTasksCategories.setVisibility(View.GONE);
+                            } else {
+                                tvTaskCategory.setVisibility(View.GONE);
+                                rvTasksCategories.setVisibility(View.VISIBLE);
+                                tasksCategoriesArrayAdapter.notifyDataSetChanged();
                             }
                         }
                     }

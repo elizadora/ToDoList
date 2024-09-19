@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -18,6 +19,9 @@ import androidx.fragment.app.Fragment;
 import com.example.todolistapp.models.UserModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -37,7 +41,6 @@ public class Perfil extends Fragment {
     Button btnLogout;
 
     ImageButton btnEditUsername;
-    ImageButton btnEditEmail;
     ImageButton btnEditPassword;
 
     public Perfil() {
@@ -61,7 +64,6 @@ public class Perfil extends Fragment {
         profileTasksNumber1 = view.findViewById(R.id.profile_tasks_number_1);
 
 
-        btnEditEmail = view.findViewById(R.id.btn_edit_email);
         btnEditPassword = view.findViewById(R.id.btn_edit_password);
         btnEditUsername = view.findViewById(R.id.bnt_edit_username);
         btnLogout = view.findViewById(R.id.btn_logout);
@@ -142,6 +144,53 @@ public class Perfil extends Fragment {
             }
         });
 
+        btnEditPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LayoutInflater inflater = LayoutInflater.from(view.getContext());
+
+                View dialogView = inflater.inflate(R.layout.dialog_edit_password, null);
+                EditText editPasswordCurrent = dialogView.findViewById(R.id.edit_password_current);
+                EditText editPasswordNew = dialogView.findViewById(R.id.edit_password_new);
+                EditText editPasswordNewAgain = dialogView.findViewById(R.id.edit_password_new_again);
+
+                AlertDialog dialog = new AlertDialog.Builder(view.getContext())
+                        .setTitle("Editar")
+                        .setView(dialogView)
+                        .setPositiveButton("Salvar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String currentPassword = editPasswordCurrent.getText().toString().trim();
+                                String newPassword = editPasswordNew.getText().toString().trim();
+                                String newPasswordAgain = editPasswordNewAgain.getText().toString().trim();
+
+                                editPassword(currentPassword, newPassword, newPasswordAgain);
+                            }
+                        })
+                        .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .create();
+
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialogInterface) {
+                        // Alterar a cor do botão "Salvar" (positivo)
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(view.getContext().getResources().getColor(R.color.primary));
+
+                        // Alterar a cor do botão "Cancelar" (negativo)
+                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(view.getContext().getResources().getColor(R.color.secondary));
+                    }
+                });
+
+                dialog.show();
+            }
+        });
+
+
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,7 +227,37 @@ public class Perfil extends Fragment {
                 if (task.isSuccessful()){
                     loadData();
                 }else{
+                    Toast.makeText(getContext(), "Error para atualizar username", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 
+    private void editPassword(String passwordCurrent, String passwordNew, String passwordNewAgain){
+        AuthCredential credential = EmailAuthProvider.getCredential(profileEmail.getText().toString(), passwordCurrent);
+
+        userFirebase.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    if(!passwordNew.equals(passwordNewAgain)){
+                        Toast.makeText(getContext(), "Senhas diferentes, tente novamente", Toast.LENGTH_SHORT).show();
+                    }else{
+                        userFirebase.updatePassword(passwordNew).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    Toast.makeText(getContext(), "Senha atualizada com sucesso", Toast.LENGTH_SHORT).show();
+                                }else{
+                                    Toast.makeText(getContext(), "Erro ao atualizar senha", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+
+
+                }else{
+                    Toast.makeText(getContext(), "Senha nao referente ao usuário", Toast.LENGTH_SHORT).show();
                 }
             }
         });

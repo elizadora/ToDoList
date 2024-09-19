@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -177,8 +179,17 @@ public class CategoriesArrayAdapter extends RecyclerView.Adapter<CategoriesArray
 
         @Override
         public void onClick(View v) {
-            String name = itemName.getText().toString();
-            Toast.makeText(v.getContext(), "Você selecionou: " + name, Toast.LENGTH_SHORT).show();
+            Bundle bundle = new Bundle();
+            bundle.putString("id", itemId.getText().toString());
+
+            TasksCategories tasksCategories = new TasksCategories();
+
+            tasksCategories.setArguments(bundle);
+
+            ((Principal) itemView.getContext()).getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.frameLayout, tasksCategories)
+                    .addToBackStack(null)
+                    .commit();
         }
 
         @Override

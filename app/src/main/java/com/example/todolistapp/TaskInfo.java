@@ -153,7 +153,7 @@ public class TaskInfo extends AppCompatActivity {
                     status = 0;
                 }
 
-                if(title.isEmpty() || description.isEmpty()){
+                if(title.isEmpty()){
                     Toast.makeText(TaskInfo.this, "Campos vazios!!", Toast.LENGTH_SHORT).show();
                 }else{
                     editTask(title, description, categoryIds.get(categoryView.getSelectedItemPosition()), date, status);

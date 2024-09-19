@@ -42,6 +42,7 @@
             android:inputType="text"
             android:padding="8dp"
             android:textColorHint="@color/text"
+            android:textColor="@color/black"
             />
 
         <Button

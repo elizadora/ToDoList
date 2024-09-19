@@ -1,5 +1,6 @@
 package com.example.todolistapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -64,7 +65,17 @@ public class AddCategory extends AppCompatActivity {
                 }
             }
         });
+
+        btnBackMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent call = new Intent(AddCategory.this, Principal.class);
+                call.putExtra("openCategoriesFragment", true);
+                startActivity(call);
+            }
+        });
     }
+
 
 
     private void addCategory(String name){

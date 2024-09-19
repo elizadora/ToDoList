@@ -1,6 +1,9 @@
 package com.example.todolistapp;
 
+
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,22 +14,20 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager2.widget.ViewPager2;
+
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+
 
 public class MainActivity extends AppCompatActivity {
     // button and link
     TextView btnRegisterTl;
     TextView forgotPassword;
     Button btnLogin;
-
+    private static final int REQUEST_NOTIFICATION_PERMISSION = 1;
     //input
     EditText loginEmail;
     EditText loginPass;
@@ -40,6 +41,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, REQUEST_NOTIFICATION_PERMISSION);
+            }
+        }
+
+        NotificationScheduler.scheduleDailyNotification(this);
+
 
         btnRegisterTl = findViewById(R.id.btn_registertl);
         forgotPassword = findViewById(R.id.forgot_password);
@@ -80,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,8 +98,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(call);
             }
         });
-
-
     }
 
     private void loginUser(String email, String password){
@@ -106,5 +114,21 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permissão concedida
+                Toast.makeText(this, "Permissão para notificações concedida", Toast.LENGTH_SHORT).show();
+                // Aqui você pode iniciar o trabalho que depende da permissão
+            } else {
+                // Permissão negada
+                Toast.makeText(this, "Permissão para notificações negada", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

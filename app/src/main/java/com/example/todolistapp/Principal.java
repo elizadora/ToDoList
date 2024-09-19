@@ -1,6 +1,7 @@
 package com.example.todolistapp;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -30,8 +31,16 @@ public class Principal extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_nav);
         frameLayout = findViewById(R.id.frameLayout);
 
-        if(savedInstanceState == null){
-            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new Tasks()).commit();
+        Intent intent = getIntent();
+        if (intent != null && intent.getBooleanExtra("openCategoriesFragment", false)) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new Categories()).commit();
+            bottomNavigationView.setSelectedItemId(R.id.bottom_categorys);
+
+        } else {
+
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new Tasks()).commit();
+            }
         }
 
 

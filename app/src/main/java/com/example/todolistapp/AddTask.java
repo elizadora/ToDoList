@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -79,6 +80,7 @@ public class AddTask extends AppCompatActivity {
 
 
         categoryList.add("Selecione uma categoria");
+        categoryIds.add("0");
         ArrayAdapter adapter = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_spinner_item, categoryList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -91,8 +93,6 @@ public class AddTask extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if(task.isSuccessful()){
-                                    // Remove o item de hint da lista de categorias
-                                    categoryList.remove(0);
                                     for(QueryDocumentSnapshot document : task.getResult()){
                                         CategoryModel category = document.toObject(CategoryModel.class);
                                         categoryList.add(category.getName());
@@ -100,8 +100,7 @@ public class AddTask extends AppCompatActivity {
 
                                     }
 
-                                    ArrayAdapter adapter = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_spinner_item, categoryList);
-                                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                   adapter.notifyDataSetChanged();
 
                                 }
                             }
@@ -110,8 +109,6 @@ public class AddTask extends AppCompatActivity {
 
         // set date
         dateTask.setText(String.format("%02d/%02d/%d", Calendar.getInstance().get(Calendar.DAY_OF_MONTH),  Calendar.getInstance().get(Calendar.MONTH) + 1,  Calendar.getInstance().get(Calendar.YEAR)));
-
-
 
 
         btnDataPicker.setOnClickListener(new View.OnClickListener() {
@@ -127,15 +124,12 @@ public class AddTask extends AppCompatActivity {
             public void onClick(View v) {
                 String title = titleTask.getText().toString().trim();
                 String description = descriptionTask.getText().toString().trim();
-                String category = categoryTask.getSelectedItem().toString().trim();
                 String date = dateTask.getText().toString().trim();
 
-                if (title.isEmpty()){
+                if (title.isEmpty() || categoryTask.getSelectedItemPosition() == 0){
                     Toast.makeText(AddTask.this, "Preencha os campos obrigatorios", Toast.LENGTH_SHORT).show();
+
                 }else{
-                    if(category.equals("Selecione uma categoria")){
-                        category =  "";
-                    }
                     addTask(title, description, categoryIds.get(categoryTask.getSelectedItemPosition()), date);
                 }
 
@@ -187,6 +181,7 @@ public class AddTask extends AppCompatActivity {
                         }
                     }
                 });
+
     }
 
 
