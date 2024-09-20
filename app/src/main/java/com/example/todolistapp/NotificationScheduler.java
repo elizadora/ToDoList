@@ -16,7 +16,7 @@ public class NotificationScheduler {
         // create a calendar instance for the next 8 AM
         Calendar next8Am = Calendar.getInstance();
         next8Am.set(Calendar.HOUR_OF_DAY, 8);
-        next8Am.set(Calendar.MINUTE, 58);
+        next8Am.set(Calendar.MINUTE, 0);
         next8Am.set(Calendar.SECOND, 0);
 
         if (now.after(next8Am)) {
