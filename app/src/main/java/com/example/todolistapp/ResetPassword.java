@@ -1,9 +1,11 @@
 package com.example.todolistapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -18,9 +20,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class ResetPassword extends AppCompatActivity {
-
+    // button
     Button btnResetPassword;
+    ImageButton btnBack;
+
+    // input
     EditText emailPassword;
+
+    //authetication
     FirebaseAuth mAuth;
 
     @Override
@@ -29,11 +36,18 @@ public class ResetPassword extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_reset_password);
 
+        // authetication
         mAuth = FirebaseAuth.getInstance();
+
+        // find id button
         btnResetPassword = findViewById(R.id.btn_reset_password);
+        btnBack = findViewById(R.id.btn_back_main_4);
+
+        // find id input
         emailPassword = findViewById(R.id.email_passord_reset);
 
 
+        // function click reset password by email
         btnResetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,6 +71,15 @@ public class ResetPassword extends AppCompatActivity {
                     });
                 }
 
+            }
+        });
+
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ResetPassword.this, MainActivity.class);
+                startActivity(intent);
             }
         });
 

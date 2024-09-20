@@ -65,7 +65,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:text="Cria sua nova categoria"
+        android:text="Crie sua nova categoria"
         android:textAlignment="center"
         android:textColor="@color/primary"
         android:textSize="30dp"

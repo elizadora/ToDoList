@@ -44,21 +44,23 @@ public class Register extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
 
-        // find
+        // find id input
         registerName = findViewById(R.id.register_user);
         registerEmail = findViewById(R.id.register_email);
         registerPassword = findViewById(R.id.register_pass);
         registerPasswordA =  findViewById(R.id.register_pass_again);
 
+        // find id button
         btnRegister = findViewById(R.id.btn_register);
         backLogin = findViewById(R.id.back_login);
 
 
-        // db
+        // db and authetication
         firebaseAuth = FirebaseAuth.getInstance();
         firestoreDB = FirebaseFirestore.getInstance();
 
 
+        // function click back to last view
         backLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,6 +70,7 @@ public class Register extends AppCompatActivity {
         });
 
 
+        // function click register user
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,8 +96,8 @@ public class Register extends AppCompatActivity {
 
     }
 
+    // function add user to db
     private void addUser(String name, String email, String password){
-
         firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -126,6 +129,8 @@ public class Register extends AppCompatActivity {
                     }
                 });
     }
+
+    // reset the input fields in the UI after user add
     private void updateUI(){
         registerPassword.setText("");
         registerEmail.setText("");

@@ -117,10 +117,9 @@ public class TasksCategoriesArrayAdapter extends RecyclerView.Adapter<TasksCateg
 
         @Override
         public void onClick(View v) {
-            Intent call = new Intent(v.getContext(), TaskInfo.class);
-            // Passa o ID do documento para a próxima Activity
-            call.putExtra("taskId", itemId.getText().toString());
-            v.getContext().startActivity(call);
+            Intent intent = new Intent(v.getContext(), TaskInfo.class);
+            intent.putExtra("taskId", itemId.getText().toString());
+            v.getContext().startActivity(intent);
         }
 
     }

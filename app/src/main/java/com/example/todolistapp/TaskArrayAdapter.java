@@ -23,13 +23,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 
 public class TaskArrayAdapter extends RecyclerView.Adapter<TaskArrayAdapter.ViewHolder> {
+    // layout
     private int listItemLayout;
+
+    // list item and id
     private ArrayList<TaskModel> itemList;
     private ArrayList<String> itemIds;// Nova lista para armazenar IDs
+
+    // db and authentication
     FirebaseFirestore firestoreDB = FirebaseFirestore.getInstance();
     String idAuth = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-    // Construtor modificado para aceitar também a lista de IDs
+    // constructor
     public TaskArrayAdapter(int layoutId, ArrayList<TaskModel> itemList, ArrayList<String> itemIds) {
         this.listItemLayout = layoutId;
         this.itemList = itemList;
@@ -63,6 +68,7 @@ public class TaskArrayAdapter extends RecyclerView.Adapter<TaskArrayAdapter.View
         }
     }
 
+    // function update status taks in db
     private void updateStatusTask(String id, int status){
         firestoreDB.collection("Users").document(idAuth).collection("Tasks").document(id).
                 update("status", status).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -118,12 +124,12 @@ public class TaskArrayAdapter extends RecyclerView.Adapter<TaskArrayAdapter.View
             });
         }
 
+        // start TaskInfo activity with task ID
         @Override
         public void onClick(View v) {
-            Intent call = new Intent(v.getContext(), TaskInfo.class);
-            // Passa o ID do documento para a próxima Activity
-            call.putExtra("taskId", itemId.getText().toString());
-            v.getContext().startActivity(call);
+            Intent intent = new Intent(v.getContext(), TaskInfo.class);
+            intent.putExtra("taskId", itemId.getText().toString());
+            v.getContext().startActivity(intent);
         }
 
     }

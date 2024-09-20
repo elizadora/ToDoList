@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -35,26 +36,32 @@ import java.util.Calendar;
 import java.util.List;
 
 public class TaskInfo extends AppCompatActivity {
+    // authetication and db
     private FirebaseFirestore firestoreDB;
-
     String userIDAuth;
 
+    // inputs/outputs
     EditText titleView;
     EditText descriptionView;
     Spinner categoryView;
     TextView dateView;
     TextView statusView;
 
+    // buttons
     Button btnSaveEditTask;
     Button btnSelectDate;
     Button btnDeleteTask;
     Button btnReady;
     ImageButton btnBackMain2;
 
+    // id tasks
     String id;
 
+    // lists to spinner
     List<String> categoryIds = new ArrayList<>();
     List<String> categoryList = new ArrayList<>();
+
+    // adapter spinner
     private ArrayAdapter<String> adapter;
 
     @Override
@@ -63,32 +70,37 @@ public class TaskInfo extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_task_info);
 
-        // get userId
+        // get userId and firestore instance
         userIDAuth = FirebaseAuth.getInstance().getCurrentUser().getUid();
         firestoreDB = FirebaseFirestore.getInstance();
 
+        // get putExtra id tasks
+        id = getIntent().getStringExtra("taskId");
 
-         id = getIntent().getStringExtra("taskId");
-
-
+        // find id input/output
         titleView = findViewById(R.id.textTask);
         descriptionView = findViewById(R.id.description_view_task);
         categoryView = findViewById(R.id.category_view_task);
         dateView = findViewById(R.id.date_view_task);
         statusView = findViewById(R.id.status_view_task);
 
+        // find id buttons
         btnSelectDate = findViewById(R.id.btn_select_date);
         btnSaveEditTask = findViewById(R.id.btn_save_edit);
         btnDeleteTask = findViewById(R.id.btn_delete_task);
         btnReady = findViewById(R.id.btn_ready);
         btnBackMain2 = findViewById(R.id.btn_back_main_2);
 
-
+        // adapter
         adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, categoryList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // set adapter to spinner
         categoryView.setAdapter(adapter);
 
-
+        // add hint and select category from task
+        categoryList.add("Selecione uma categoria");
+        categoryIds.add("0");
         firestoreDB.collection("Users").document(userIDAuth).
                 collection("Categories").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -108,6 +120,7 @@ public class TaskInfo extends AppCompatActivity {
         loadData();
 
 
+        // function click delete task
         btnDeleteTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,28 +154,26 @@ public class TaskInfo extends AppCompatActivity {
         });
 
 
+        // function click edit task
         btnSaveEditTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String title = titleView.getText().toString().trim();
                 String description = descriptionView.getText().toString().trim();
                 String date = dateView.getText().toString().trim();
-                int status = 1;
-
-                if(statusView.getText().toString().equals("Pendente")){
-                    status = 0;
-                }
+                String category = categoryView.getSelectedItemPosition() == 0 ? "" : categoryIds.get(categoryView.getSelectedItemPosition());
+                int status = statusView.getText().toString().equals("Pendente") ? 0 : 1;
 
                 if(title.isEmpty()){
                     Toast.makeText(TaskInfo.this, "Campos vazios!!", Toast.LENGTH_SHORT).show();
                 }else{
-                    editTask(title, description, categoryIds.get(categoryView.getSelectedItemPosition()), date, status);
+                    editTask(title, description, category, date, status);
                 }
 
             }
         });
 
-
+        // function click back to last view
         btnBackMain2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -172,17 +183,11 @@ public class TaskInfo extends AppCompatActivity {
         });
 
 
+        // change status task
         btnReady.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int status = 0;
-
-                if (statusView.getText().toString().equals("Pendente")) {
-                    status = 1;
-
-                } else {
-                    status = 0;
-                }
+                int status = statusView.getText().toString().equals("Pendente") ? 1 : 0;
 
                 firestoreDB.collection("Users")
                         .document(userIDAuth)
@@ -195,6 +200,7 @@ public class TaskInfo extends AppCompatActivity {
         });
 
 
+        // function select date
         btnSelectDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -204,8 +210,8 @@ public class TaskInfo extends AppCompatActivity {
 
     }
 
+    // function load data from db
     private void loadData(){
-        // get from firestore
         firestoreDB.collection("Users").document(userIDAuth).
                 collection("Tasks").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -217,7 +223,7 @@ public class TaskInfo extends AppCompatActivity {
                             descriptionView.setText(t.getDescription());
 
                             String categoryFromF = t.getCategory();
-                            int spinnerPosition = categoryIds.indexOf(categoryFromF);
+                            int spinnerPosition = categoryFromF.isEmpty() ? 0 : categoryIds.indexOf(categoryFromF);
 
 
                             categoryView.setSelection(spinnerPosition);
@@ -237,6 +243,7 @@ public class TaskInfo extends AppCompatActivity {
                 });
     }
 
+    // function edit taks db
     private void editTask(String title, String description, String category, String date, int status){
         TaskModel updatedTask = new TaskModel(title, description, date, category, status);
 
@@ -255,7 +262,7 @@ public class TaskInfo extends AppCompatActivity {
         });
     }
 
-
+    // function delete task db
     private void deleteTask(){
         firestoreDB.collection("Users").document(userIDAuth).collection("Tasks").document(id).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -272,6 +279,7 @@ public class TaskInfo extends AppCompatActivity {
 
 
 
+    // open dialog function
     private void openDialog(){
         Calendar calendar = Calendar.getInstance();
         int Uyear = calendar.get(Calendar.YEAR);
@@ -286,6 +294,9 @@ public class TaskInfo extends AppCompatActivity {
         }, Uyear, Umonth, Uday);
 
         dialog.show();
+
+        dialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#227B94"));
+        dialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#F5F5F5"));
     }
 
 }

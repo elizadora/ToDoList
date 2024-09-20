@@ -23,11 +23,14 @@ import com.google.firebase.auth.FirebaseAuth;
 
 
 public class MainActivity extends AppCompatActivity {
-    // button and link
+    // buttons and links
     TextView btnRegisterTl;
     TextView forgotPassword;
     Button btnLogin;
+
+    // request code for notification permission
     private static final int REQUEST_NOTIFICATION_PERMISSION = 1;
+
     //input
     EditText loginEmail;
     EditText loginPass;
@@ -43,40 +46,39 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+        // check and request notification permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, REQUEST_NOTIFICATION_PERMISSION);
             }
         }
 
+        // schedule daily notifications
         NotificationScheduler.scheduleDailyNotification(this);
 
-
+        // find id button and link
         btnRegisterTl = findViewById(R.id.btn_registertl);
         forgotPassword = findViewById(R.id.forgot_password);
         btnLogin = findViewById(R.id.btn_login);
 
+        // find id inputs
         loginEmail = findViewById(R.id.login_email);
         loginPass = findViewById(R.id.login_pass);
 
-
-        loginEmail.setText("elizadoradasilva2003@gmail.com");
-        loginPass.setText("123456");
-
-
-        //authetication
+        // authetication
         firebaseAuth = FirebaseAuth.getInstance();
 
 
+        // function click to start Register activity
         btnRegisterTl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent call = new Intent(MainActivity.this, Register.class);
-                startActivity(call);
+                Intent intent = new Intent(MainActivity.this, Register.class);
+                startActivity(intent);
             }
         });
 
-
+        // function click to make a login
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,15 +93,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // function click to start ResetPassword activity
         forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent call = new Intent(MainActivity.this, ResetPassword.class);
-                startActivity(call);
+                Intent intent = new Intent(MainActivity.this, ResetPassword.class);
+                startActivity(intent);
             }
         });
     }
 
+    // function to login in the user(firebaseAuthentication)
     private void loginUser(String email, String password){
         firebaseAuth.signInWithEmailAndPassword(email, password).
                 addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
@@ -122,11 +126,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permissão concedida
                 Toast.makeText(this, "Permissão para notificações concedida", Toast.LENGTH_SHORT).show();
-                // Aqui você pode iniciar o trabalho que depende da permissão
             } else {
-                // Permissão negada
                 Toast.makeText(this, "Permissão para notificações negada", Toast.LENGTH_SHORT).show();
             }
         }

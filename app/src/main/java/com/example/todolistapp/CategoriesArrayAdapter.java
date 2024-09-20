@@ -21,21 +21,29 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.todolistapp.models.CategoryModel;
+import com.example.todolistapp.models.TaskModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
 public class CategoriesArrayAdapter extends RecyclerView.Adapter<CategoriesArrayAdapter.ViewHolder>{
+    // layout
     private int listItemLayout;
+
+    // list item and id
     private ArrayList<CategoryModel> itemList;
     private ArrayList<String> itemIds;
+
+    // db and authentication
     private FirebaseFirestore firestoreDB = FirebaseFirestore.getInstance();;
     private String userIDAuth = FirebaseAuth.getInstance().getCurrentUser().getUid();;
 
+    // constructor
     public CategoriesArrayAdapter(int layoutId, ArrayList<CategoryModel> itemList, ArrayList<String> itemIds){
         this.listItemLayout = layoutId;
         this.itemList = itemList;
@@ -59,7 +67,7 @@ public class CategoriesArrayAdapter extends RecyclerView.Adapter<CategoriesArray
         itemId.setText(itemIds.get(position));
         itemName.setText(itemList.get(position).getName());
 
-
+        // get qtd tasks associated with this category
         firestoreDB.collection("Users").document(userIDAuth).collection("Tasks")
                 .whereEqualTo("category", itemIds.get(position))
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -81,19 +89,13 @@ public class CategoriesArrayAdapter extends RecyclerView.Adapter<CategoriesArray
                 });
     }
 
+    // function to delete a category
     private void editCategory(String categoryName, String id){
         firestoreDB.collection("Users").document(userIDAuth).collection("Categories").document(id).
                 update("name", categoryName).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
-                            for (int i = 0; i < itemList.size(); i++) {
-                                if (itemIds.get(i).equals(id)) {
-                                    itemList.get(i).setName(categoryName);
-                                    notifyItemChanged(i);
-                                    break;
-                                }
-                            }
                             Log.d("Sucesso", "categoria atualizada");
                         }else{
                             Log.d("Error", "categoria nao foi atualizada");
@@ -102,31 +104,41 @@ public class CategoriesArrayAdapter extends RecyclerView.Adapter<CategoriesArray
                 });
     }
 
+    // function to delete a category
     private void deleteCategory(String id){
+        firestoreDB.collection("Users").document(userIDAuth).collection("Tasks").get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if(task.isSuccessful()){
+                                    for(QueryDocumentSnapshot documentSnapshot : task.getResult()){
+                                        TaskModel t = documentSnapshot.toObject(TaskModel.class);
+
+                                        if(t.getCategory().equals(id)){
+                                            firestoreDB.collection("Users").document(userIDAuth).
+                                                    collection("Tasks").document(documentSnapshot.getId())
+                                                    .update("category", "").addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if(task.isSuccessful()){
+                                                                Log.d("Sucesso", "Categoria removida da tarefa");
+                                                            }else{
+                                                                Log.d("Error", "Error ao retirar categoria da tarefa");
+                                                            }
+                                                        }
+                                                    });
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
         firestoreDB.collection("Users").document(userIDAuth).collection("Categories").document(id).
                 delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
-                            int position = -1;
-                            for (int i = 0; i < itemIds.size(); i++) {
-                                if (itemIds.get(i).equals(id)) {
-                                    position = i;
-                                    break;
-                                }
-                            }
-
-                            if (position != -1) {
-                                // Remove o item da lista de IDs
-                                itemIds.remove(position);
-                                // Remove o item da lista de modelos
-                                itemList.remove(position);
-
-                                // Notifica o adaptador que o item foi removido
-                                notifyItemRemoved(position);
-                            }
-                                Log.d("Sucesso", "Categoria deletada e tela recarregada");
-
+                                Log.d("Sucesso", "Categoria deletada");
 
                         }else{
                                 Log.d("Erro", "Erro ao deletar categoria");
@@ -163,7 +175,7 @@ public class CategoriesArrayAdapter extends RecyclerView.Adapter<CategoriesArray
             dotsCategory = (ImageButton) itemView.findViewById(R.id.dots_category);
 
 
-
+            // set up options menu for the category
             dotsCategory.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -222,10 +234,8 @@ public class CategoriesArrayAdapter extends RecyclerView.Adapter<CategoriesArray
                 dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialogInterface) {
-                        // Alterar a cor do botão "Salvar" (positivo)
+                        // change the colors of the buttons in the dialog
                         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(itemView.getContext().getResources().getColor(R.color.primary));
-
-                        // Alterar a cor do botão "Cancelar" (negativo)
                         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(itemView.getContext().getResources().getColor(R.color.secondary));
                     }
                 });
@@ -246,7 +256,19 @@ public class CategoriesArrayAdapter extends RecyclerView.Adapter<CategoriesArray
                     });
 
                     confirmDelete.setNegativeButton("Não", null);
-                    confirmDelete.create().show();
+                    confirmDelete.create();
+
+                AlertDialog dialog = confirmDelete.create();
+
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialogInterface) {
+                        // change the colors of the buttons in the dialog
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(itemView.getResources().getColor(R.color.primary));
+                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(itemView.getResources().getColor(R.color.secondary));
+                    }
+                });
+                dialog.show();
 
                 return true;
             } else {

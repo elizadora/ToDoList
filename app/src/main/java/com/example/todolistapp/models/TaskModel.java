@@ -7,10 +7,8 @@ public class TaskModel {
     String category;
     int status;
 
-    public TaskModel(){
-
-    }
-
+    // constructor
+    public TaskModel(){}
     public TaskModel(String title, String description, String date, String category, int status) {
         this.title = title;
         this.description = description;
@@ -19,6 +17,7 @@ public class TaskModel {
         this.status = status;
     }
 
+    // getters and setters
     public int getStatus() {
         return status;
     }

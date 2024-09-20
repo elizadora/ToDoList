@@ -18,6 +18,7 @@ import com.google.android.material.navigation.NavigationBarView;
 
 public class Principal extends AppCompatActivity {
 
+    // bottom menu and frameLayout
     BottomNavigationView bottomNavigationView;
     FrameLayout frameLayout;
 
@@ -27,24 +28,23 @@ public class Principal extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_principal);
 
-
+        // find id menu and frame
         bottomNavigationView = findViewById(R.id.bottom_nav);
         frameLayout = findViewById(R.id.frameLayout);
 
         Intent intent = getIntent();
+
         if (intent != null && intent.getBooleanExtra("openCategoriesFragment", false)) {
             getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new Categories()).commit();
             bottomNavigationView.setSelectedItemId(R.id.bottom_categorys);
 
         } else {
-
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new Tasks()).commit();
             }
         }
 
-
-
+        // set up the bottom navigation item selection listener
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -65,18 +65,6 @@ public class Principal extends AppCompatActivity {
             }
         });
 
-
-
-
-
-    }
-
-
-    private void replaceFragment(Fragment fragment){
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout, fragment);
-        fragmentTransaction.commit();
     }
 
 }

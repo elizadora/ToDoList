@@ -2,6 +2,7 @@ package com.example.todolistapp;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -36,6 +37,7 @@ public class AddTask extends AppCompatActivity {
 
     // db and authentication
     private FirebaseFirestore firestoreDB;
+    String userIDAuth;
 
 
     // buttons
@@ -43,9 +45,8 @@ public class AddTask extends AppCompatActivity {
     Button btnRegisterTask;
     ImageButton btnBackMain;
 
-    // id user
-    String userIDAuth;
 
+    // lists to spinner
     List<String> categoryIds = new ArrayList<>();
     List<String> categoryList = new ArrayList<>();
 
@@ -61,38 +62,42 @@ public class AddTask extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_add_task);
 
-        // get userId
+        // get userId and instance db
         userIDAuth = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        firestoreDB = FirebaseFirestore.getInstance();
 
-        // find elements
+        // find id inputs
         categoryTask = findViewById(R.id.category_task);
         dateTask = findViewById(R.id.date_task);
         titleTask = findViewById(R.id.title_task);
         descriptionTask = findViewById(R.id.description_task);
 
+        // find id buttons
         btnDataPicker = findViewById(R.id.date_picker);
         btnRegisterTask = findViewById(R.id.btn_register_task);
         btnBackMain = findViewById(R.id.btn_back_main);
 
 
-        // set categories user in spinner
-        firestoreDB = FirebaseFirestore.getInstance();
-
-
+        // set first category(hint) to spinner
         categoryList.add("Selecione uma categoria");
         categoryIds.add("0");
+
+        // create adapter
         ArrayAdapter adapter = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_spinner_item, categoryList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
+        // set adapter to spinner
         categoryTask.setAdapter(adapter);
         categoryTask.setSelection(0);
 
+        // populate spinner with categories from db
         firestoreDB.collection("Users").document(userIDAuth)
                 .collection("Categories").get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if(task.isSuccessful()){
+                                    // Add each category from the db to the spinner
                                     for(QueryDocumentSnapshot document : task.getResult()){
                                         CategoryModel category = document.toObject(CategoryModel.class);
                                         categoryList.add(category.getName());
@@ -100,17 +105,19 @@ public class AddTask extends AppCompatActivity {
 
                                     }
 
-                                   adapter.notifyDataSetChanged();
+                                    //Notify the adapter that the data set has changed
+                                    adapter.notifyDataSetChanged();
 
                                 }
                             }
                         });
 
 
-        // set date
+        // set date default to today
         dateTask.setText(String.format("%02d/%02d/%d", Calendar.getInstance().get(Calendar.DAY_OF_MONTH),  Calendar.getInstance().get(Calendar.MONTH) + 1,  Calendar.getInstance().get(Calendar.YEAR)));
 
 
+        // function click open a date picker dialog
         btnDataPicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,24 +126,27 @@ public class AddTask extends AppCompatActivity {
         });
 
 
+        // function click register task
         btnRegisterTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String title = titleTask.getText().toString().trim();
                 String description = descriptionTask.getText().toString().trim();
+                String category = categoryTask.getSelectedItemPosition() == 0 ? "" : categoryIds.get(categoryTask.getSelectedItemPosition());
                 String date = dateTask.getText().toString().trim();
 
-                if (title.isEmpty() || categoryTask.getSelectedItemPosition() == 0){
+                if (title.isEmpty()){
                     Toast.makeText(AddTask.this, "Preencha os campos obrigatorios", Toast.LENGTH_SHORT).show();
 
                 }else{
-                    addTask(title, description, categoryIds.get(categoryTask.getSelectedItemPosition()), date);
+                    addTask(title, description,category, date);
                 }
 
             }
         });
 
 
+        // function click btn back to last view
         btnBackMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -147,6 +157,7 @@ public class AddTask extends AppCompatActivity {
 
     }
 
+    // open a date picker dialog for the user to select a date
     private void openDialog(){
         Calendar calendar = Calendar.getInstance();
         int Uyear = calendar.get(Calendar.YEAR);
@@ -156,14 +167,20 @@ public class AddTask extends AppCompatActivity {
         DatePickerDialog dialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                // update the selected date in the TextView
                 dateTask.setText(String.format("%02d/%02d/%d", dayOfMonth, month + 1, year));
             }
         }, Uyear, Umonth, Uday);
 
         dialog.show();
+
+        // set the colors of the positive and negative buttons in the dialog
+        dialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#227B94"));
+        dialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#F5F5F5"));
+
     }
 
-
+    // add a task to the db
     private void addTask(String title, String descripition, String category, String date){
         TaskModel task1  = new TaskModel(title, descripition,date, category, 0);
 
@@ -184,7 +201,7 @@ public class AddTask extends AppCompatActivity {
 
     }
 
-
+    // reset the input fields in the UI after task is added
     private void updateUI(){
         titleTask.setText("");
         descriptionTask.setText("");

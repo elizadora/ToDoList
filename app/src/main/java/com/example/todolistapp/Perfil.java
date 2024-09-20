@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,13 +25,17 @@ import com.google.firebase.auth.EmailAuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class Perfil extends Fragment {
+    // db and authetication
     private FirebaseFirestore firestoreDB;
     private String userIDAuth;
     FirebaseUser userFirebase;
 
+    //output
     TextView profileName;
     TextView profileNameUI;
     TextView profileEmail;
@@ -38,8 +43,8 @@ public class Perfil extends Fragment {
     TextView profileTasksNumber0;
     TextView profileTasksNumber1;
 
+    // button
     Button btnLogout;
-
     ImageButton btnEditUsername;
     ImageButton btnEditPassword;
 
@@ -50,12 +55,12 @@ public class Perfil extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_perfil, container, false);
 
-        // Obtenha o ID do usuário autenticado
+        // get id user and instance firestore
         userFirebase = FirebaseAuth.getInstance().getCurrentUser();
         userIDAuth = userFirebase.getUid();
         firestoreDB = FirebaseFirestore.getInstance();
 
-        // Acessar os elementos da interface do usuário
+        // find id output
         profileName = view.findViewById(R.id.profile_name);
         profileNameUI = view.findViewById(R.id.profile_nameUi);
         profileEmail = view.findViewById(R.id.profile_email);
@@ -64,44 +69,59 @@ public class Perfil extends Fragment {
         profileTasksNumber1 = view.findViewById(R.id.profile_tasks_number_1);
 
 
+        // find id btn
         btnEditPassword = view.findViewById(R.id.btn_edit_password);
         btnEditUsername = view.findViewById(R.id.bnt_edit_username);
         btnLogout = view.findViewById(R.id.btn_logout);
 
+        // load data from db
         loadData();
 
-        // Contar o número de tarefas do usuário
+        // count number tasks for user
         firestoreDB.collection("Users").document(userIDAuth).collection("Tasks").get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         int taskQTD = task.getResult().size();
                         profileTasksNumber.setText(String.valueOf(taskQTD));
+
+                    }else{
+                        Log.d("Error", "Erro ao contar as tarefas");
                     }
                 });
 
-        // Contar o número de tarefas com status 0
+        // count number tasks status 0
         firestoreDB.collection("Users").document(userIDAuth)
                 .collection("Tasks").whereEqualTo("status", 0).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        int taskQTD0 = task.getResult().size();
-                        profileTasksNumber0.setText(String.valueOf(taskQTD0));
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            int taskQTD0 = task.getResult().size();
+                            profileTasksNumber0.setText(String.valueOf(taskQTD0));
+                        }else{
+                            Log.d("Error", "Erro ao contar as tarefas de status 1");
+                        }
                     }
                 });
 
-        // Contar o número de tarefas com status 1
+        // count number tasks status 1
         firestoreDB.collection("Users").document(userIDAuth)
                 .collection("Tasks").whereEqualTo("status", 1).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        int taskQTD1 = task.getResult().size();
-                        profileTasksNumber1.setText(String.valueOf(taskQTD1));
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            int taskQTD1 = task.getResult().size();
+                            profileTasksNumber1.setText(String.valueOf(taskQTD1));
+                        }else{
+                            Log.d("Error", "Erro ao contar as tarefas de status 1");
+                        }
                     }
                 });
 
 
 
-
+        // function click edit username
         btnEditUsername.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,10 +152,8 @@ public class Perfil extends Fragment {
                 dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialogInterface) {
-                        // Alterar a cor do botão "Salvar" (positivo)
+                        // change button colors on dialog show
                         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(view.getContext().getResources().getColor(R.color.primary));
-
-                        // Alterar a cor do botão "Cancelar" (negativo)
                         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(view.getContext().getResources().getColor(R.color.secondary));
                     }
                 });
@@ -178,10 +196,8 @@ public class Perfil extends Fragment {
                 dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialogInterface) {
-                        // Alterar a cor do botão "Salvar" (positivo)
+                        // change button colors on dialog show
                         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(view.getContext().getResources().getColor(R.color.primary));
-
-                        // Alterar a cor do botão "Cancelar" (negativo)
                         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(view.getContext().getResources().getColor(R.color.secondary));
                     }
                 });
@@ -190,13 +206,36 @@ public class Perfil extends Fragment {
             }
         });
 
-
+        // function click logout
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                Intent call = new Intent(view.getContext(), MainActivity.class);
-                startActivity(call);
+                AlertDialog.Builder confirmeLogout = new AlertDialog.Builder(view.getContext());
+                confirmeLogout.setTitle("Atenção!");
+                confirmeLogout.setMessage("Tem certeza que deseja sair?");
+                confirmeLogout.setCancelable(false);
+                confirmeLogout.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        FirebaseAuth.getInstance().signOut();
+                        Intent intent = new Intent(view.getContext(), MainActivity.class);
+                        startActivity(intent);
+                    }
+                });
+
+                confirmeLogout.setNegativeButton("Não", null);
+                confirmeLogout.create();
+
+                AlertDialog dialog = confirmeLogout.create();
+
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialogInterface) {
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.primary));
+                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.secondary));
+                    }
+                });
+                dialog.show();
             }
         });
 
@@ -205,16 +244,20 @@ public class Perfil extends Fragment {
 
 
     private void loadData(){
-        // Carregar os dados do usuário do Firestore
         firestoreDB.collection("Users").document(userIDAuth).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        UserModel user = task.getResult().toObject(UserModel.class);
-                        if (user != null) {
-                            profileName.setText(user.getName());
-                            profileNameUI.setText(user.getName());
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            UserModel user = task.getResult().toObject(UserModel.class);
+                            if (user != null) {
+                                profileName.setText(user.getName());
+                                profileNameUI.setText(user.getName());
+                            }
+                            profileEmail.setText(userFirebase.getEmail());
+                        }else{
+                            Log.d("Error", "Error ao carregar dados do usuario");
                         }
-                        profileEmail.setText(userFirebase.getEmail());
                     }
                 });
     }

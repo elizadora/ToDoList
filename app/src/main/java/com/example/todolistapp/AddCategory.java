@@ -25,11 +25,11 @@ public class AddCategory extends AppCompatActivity {
     private FirebaseFirestore firestoreDB;
     String userIDAuth;
 
-
+    // buttons
     ImageButton btnBackMain;
     Button btnRegisterCategory;
 
-
+    // inputs
     EditText categoryName;
 
 
@@ -40,18 +40,19 @@ public class AddCategory extends AppCompatActivity {
         setContentView(R.layout.activity_add_category);
 
 
-        // get userId
+        // get userId and instance db
         userIDAuth = FirebaseAuth.getInstance().getCurrentUser().getUid();
         firestoreDB = FirebaseFirestore.getInstance();
 
-
+        // find id buttons
         btnBackMain = findViewById(R.id.btn_back_mainC);
         btnRegisterCategory = findViewById(R.id.btn_register_category);
 
+        // find id inputs
         categoryName = findViewById(R.id.name_category);
 
 
-
+        // function click btn register catergory
         btnRegisterCategory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,18 +67,20 @@ public class AddCategory extends AppCompatActivity {
             }
         });
 
+
+        // function click btn back to last view
         btnBackMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent call = new Intent(AddCategory.this, Principal.class);
-                call.putExtra("openCategoriesFragment", true);
-                startActivity(call);
+                Intent intent = new Intent(AddCategory.this, Principal.class);
+                intent.putExtra("openCategoriesFragment", true);
+                startActivity(intent);
             }
         });
     }
 
 
-
+    // function add category to db
     private void addCategory(String name){
         CategoryModel category = new CategoryModel(name);
 
@@ -92,8 +95,6 @@ public class AddCategory extends AppCompatActivity {
                         }
                     }
                 });
-
-
     }
 
 }

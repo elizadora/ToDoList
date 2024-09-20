@@ -3,17 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/secondary"
     android:layout_height="match_parent"
     tools:context=".TasksCategories">
+
+    <ImageButton
+        android:id="@+id/btn_back_main_3"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/arrow_back_24"
+        android:tint="@color/primary"
+        android:layout_marginTop="40dp"
+        android:background="@color/secondary" />
 
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_tasks_categories"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="20dp"
-        />
+        android:layout_marginTop="80dp"
+        android:layout_marginBottom="20dp" />
 
     <TextView
         android:id="@+id/tv_task_category"
@@ -37,5 +46,6 @@
         android:layout_marginBottom="150dp"
         android:layout_marginEnd="10dp"
         android:src="@drawable/add" />
+
 
 </RelativeLayout>

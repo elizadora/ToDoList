@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -31,6 +32,7 @@ public class TasksCategories extends Fragment {
     String userIDAuth;
 
     FloatingActionButton btnAddTask2;
+    ImageButton btnBackMain;
     TextView tvTaskCategory;
 
     RecyclerView rvTasksCategories;
@@ -61,6 +63,7 @@ public class TasksCategories extends Fragment {
 
         tvTaskCategory = view.findViewById(R.id.tv_task_category);
         btnAddTask2 = view.findViewById(R.id.btn_add_task_2);
+        btnBackMain = view.findViewById(R.id.btn_back_main_3);
         btnAddTask2.setColorFilter(ContextCompat.getColor(view.getContext(), R.color.secondary));
 
 
@@ -81,6 +84,15 @@ public class TasksCategories extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), AddTask.class);
+                startActivity(intent);
+            }
+        });
+
+        btnBackMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(view.getContext(), Principal.class);
+                intent.putExtra("openCategoriesFragment", true);
                 startActivity(intent);
             }
         });

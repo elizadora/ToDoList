@@ -18,12 +18,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class NotificationWorker extends Worker {
 
+    // authentication and db
     FirebaseFirestore fb = FirebaseFirestore.getInstance();
     String firebaseAuth = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+    // constants for notification channel and ID
     public static final String CHANNEL_ID = "daily_notifications";
     public static final int NOTIFICATION_ID = 1;
 
+    // constructor
     public NotificationWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
@@ -38,15 +41,13 @@ public class NotificationWorker extends Worker {
     private void showNotification(String title, String message) {
         Context context = getApplicationContext();
 
-        // Verificar se a permissão foi concedida (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                // Permissão não concedida, então não exibe a notificação
-                return;
+                return; // permission not granted, so do not show the notification
             }
         }
 
-        // Criação do canal de notificação (para Android 8.0 e superior)
+        // create the notification channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
@@ -57,14 +58,14 @@ public class NotificationWorker extends Worker {
             manager.createNotificationChannel(channel);
         }
 
-        // Criação da notificação
+        //  build the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.tasks)  // Defina o ícone da notificação
                 .setContentTitle(title)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-        // Exibição da notificação
+        // show notification
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
